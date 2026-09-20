@@ -152,6 +152,23 @@ local function newFontString(name, parent, layer)
 	function fs:SetJustifyV() end
 	function fs:GetStringWidth() return string.len(self.__text or "") * 6 end
 	function fs:SetWordWrap() end
+
+	-- Rough text metrics so layout code that measures a font string can be
+	-- exercised. Real glyph widths vary; this only has to be monotonic in the
+	-- amount of text, which is what layout logic depends on.
+	function fs:GetHeight()
+		if self.__height then return self.__height end
+		local text = self.__text
+		if not text or text == "" then return 0 end
+		local size = self.__size or 12
+		local perChar = size * 0.5
+		local width = self.__width
+		if not width or width <= 0 then return size + 2 end
+		local perLine = math.max(1, math.floor(width / perChar))
+		local lines = math.max(1, math.ceil(string.len(text) / perLine))
+		return lines * (size + 2)
+	end
+
 	return fs
 end
 
