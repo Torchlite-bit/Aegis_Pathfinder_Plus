@@ -350,6 +350,7 @@ function TurtleGuide:UpdateGuideListPanel()
     local rxpGuides = {}
     local rxphcGuides = {}
     local zoneGuides = {}
+    local professionGuides = {}
     local seen = {}
 
     local playerLevel = UnitLevel("player") or 0
@@ -387,6 +388,8 @@ function TurtleGuide:UpdateGuideListPanel()
                     if self.db.char.filterRXPHC then
                         table.insert(rxphcGuides, name)
                     end
+                elseif cat == "profession" then
+                    table.insert(professionGuides, name)
                 else
                     if self.db.char.filterZone then
                         table.insert(zoneGuides, name)
@@ -401,6 +404,7 @@ function TurtleGuide:UpdateGuideListPanel()
     table.sort(rxpGuides, SortGuidesByLevel)
     table.sort(rxphcGuides, SortGuidesByLevel)
     table.sort(zoneGuides, SortGuidesByLevel)
+    table.sort(professionGuides, SortGuidesByLevel)
 
     if table.getn(turtleGuides) > 0 then
         table.insert(displayList, { header = true, text = "--- TurtleWoW Zones ---" })
@@ -433,6 +437,13 @@ function TurtleGuide:UpdateGuideListPanel()
     if table.getn(zoneGuides) > 0 then
         table.insert(displayList, { header = true, text = "--- Zone Guides ---" })
         for _, name in ipairs(zoneGuides) do
+            table.insert(displayList, { guide = name })
+        end
+    end
+
+    if table.getn(professionGuides) > 0 then
+        table.insert(displayList, { header = true, text = "--- Professions ---" })
+        for _, name in ipairs(professionGuides) do
             table.insert(displayList, { guide = name })
         end
     end

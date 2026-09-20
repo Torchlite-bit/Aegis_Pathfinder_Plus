@@ -1539,7 +1539,22 @@ local TURTLE_ZONES = {
 }
 
 -- Categorize a guide by its name
+--- True when a guide is a labelled placeholder rather than authored content.
+function TurtleGuide:IsTemplateGuide(guideName)
+    local qsp = self.qsplusguides and self.qsplusguides[guideName]
+
+    return (qsp and qsp.template) and true or false
+end
+
 function TurtleGuide:GetGuideCategory(guideName)
+    -- Profession guides declare their category on the guide table rather than
+    -- encoding it in the name, so ask the table first. Matching on the name
+    -- would put "Alchemy (1-300)" in with the zone guides.
+    local qsp = self.qsplusguides and self.qsplusguides[guideName]
+    if qsp and qsp.category == "Profession" then
+        return "profession"
+    end
+
     if string.find(guideName, "^Optimized/") then
         return "optimized"
     end
