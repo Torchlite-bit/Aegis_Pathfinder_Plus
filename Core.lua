@@ -482,6 +482,7 @@ function TurtleGuide:OnEnable()
     end
 
     self:PatchAstrolabe()
+    self:RegisterProfessionEvents()
 
     if self.db.char.debug then
         self:SetDebugging(true)

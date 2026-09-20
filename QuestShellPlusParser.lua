@@ -98,6 +98,48 @@ local function stepToTagString(step)
         table.insert(tags, string.format("|L|%s|", lootStr))
     end
 
+    -- Trade-skill steps. The quest vocabulary has nothing that expresses
+    -- "craft until your skill reaches N", so profession guides carry their own
+    -- tags rather than overloading |QID| or |L|.
+
+    -- |SKILL|<profession> <from> <to>| -- completes when the player's skill in
+    -- <profession> reaches <to>. <from> is what the step assumes you start at.
+    if step.skill and step.skill.profession and step.skill.to then
+        table.insert(tags, string.format("|SKILL|%s %d %d|",
+            step.skill.profession, step.skill.from or 0, step.skill.to))
+    end
+
+    -- |CRAFT|<count> <item>| -- what to make, and how many the route expects.
+    if step.craft and step.craft.item then
+        table.insert(tags, string.format("|CRAFT|%d %s|",
+            step.craft.count or 1, step.craft.item))
+    end
+
+    -- |MATS|<qty>x <item>, ...| -- reagents for one craft, for the materials view.
+    if step.reagents and type(step.reagents) == "table" then
+        local mats = {}
+        for i = 1, table.getn(step.reagents) do
+            local r = step.reagents[i]
+            table.insert(mats, string.format("%dx %s", r.qty or 1, r.item))
+        end
+        if table.getn(mats) > 0 then
+            table.insert(tags, string.format("|MATS|%s|", table.concat(mats, ", ")))
+        end
+    end
+
+    -- |SRC| -- where the recipe comes from (trainer, vendor, drop).
+    if step.source then
+        table.insert(tags, string.format("|SRC|%s|", step.source))
+    end
+
+    -- |ALT| -- equally viable recipes for this range, if the route's pick is
+    -- unavailable or expensive on your server.
+    if step.alternatives and type(step.alternatives) == "table" then
+        if table.getn(step.alternatives) > 0 then
+            table.insert(tags, string.format("|ALT|%s|",
+                table.concat(step.alternatives, ", ")))
+        end
+    end
     return table.concat(tags, " ")
 end
 
@@ -107,6 +149,17 @@ local function isStepEligible(step)
 
     local myclass = UnitClass("player") or ""
     local myrace = UnitRace("player") or ""
+
+    -- Faction filter. Profession guides are registered for "Both" factions but
+    -- have to show each player only their own trainers, and matching on race
+    -- names is fragile across locales and custom races -- so filter on the
+    -- faction directly.
+    if step.faction then
+        local myfaction = TurtleGuide.myfaction or UnitFactionGroup("player")
+        if myfaction and step.faction ~= "Both" and step.faction ~= myfaction then
+            return false
+        end
+    end
 
     -- Class filter
     if step.class then

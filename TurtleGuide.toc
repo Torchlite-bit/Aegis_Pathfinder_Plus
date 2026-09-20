@@ -32,6 +32,7 @@ Parser.lua
 QuestShellPlusParser.lua
 Navigation.lua
 QuestTracker.lua
+Professions.lua
 StatusFrame.lua
 OptionsFrame.lua
 GuideListFrame.lua
@@ -52,6 +53,9 @@ Guides\Horde\Guides.xml
 
 # Both Factions Guides
 Guides\Both\Guides.xml
+
+# Profession Guides (generated from Tools/data/Professions_Reference.docx)
+Guides\Professions\Guides.xml
 
 # RestedXP Converted Guides (Survival routes)
 Guides\RXP\Alliance\Guides.xml
