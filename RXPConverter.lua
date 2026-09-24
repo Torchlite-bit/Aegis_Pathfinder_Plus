@@ -121,7 +121,8 @@ local function parseStep(stepLines, currentZone, currentClass, currentRace)
 		-- Clean whitespace
 		line = string.gsub(line, "^%s+", "")
 		line = string.gsub(line, "%s+$", "")
-		if string.len(line) == 0 then continue end
+		-- Lua has no `continue`; skip blank lines by scoping the rest of the body.
+		if string.len(line) > 0 then
 
 		-- Check for RXP action markers in colors
 		if string.find(line, "|cRXP_BUY_") then
@@ -271,6 +272,7 @@ local function parseStep(stepLines, currentZone, currentClass, currentRace)
 			result.optional = true
 		elseif string.find(line, "^#sticky") then
 			result.sticky = true
+		end
 		end
 	end
 

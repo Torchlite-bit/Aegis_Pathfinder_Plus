@@ -138,6 +138,33 @@ on a `C` step instead, or an `\|L\|itemid qty\|` tag for item collects.
 | `OBJ` | Object ID | `\|OBJ\|12345\|` |
 | `AYG` | "As You Go" reference | `\|AYG\|41190\|` |
 
+### Profession Tags
+
+Profession guides do not advance on quest events -- there is no quest to accept
+or turn in, only a skill number that climbs while you craft. These tags drive
+that, and are handled in `Professions.lua`.
+
+| Tag | Description | Example |
+|-----|-------------|---------|
+| `SKILL` | Profession and skill range. The step completes when the player's skill reaches the upper bound. | `\|SKILL\|Alchemy 1 63\|` |
+| `CRAFT` | What to make, and roughly how many the route expects | `\|CRAFT\|40 Minor Healing Potion\|` |
+| `MATS` | Reagents for a *single* craft; the materials view multiplies by the craft count | `\|MATS\|1x Peacebloom, 1x Silverleaf, 1x Empty Vial\|` |
+| `SRC` | Where the recipe comes from | `\|SRC\|Trainer\|` |
+| `ALT` | Equally viable recipes for the same range | `\|ALT\|Elixir of Minor Defense, Swiftness Potion\|` |
+
+A profession name may contain a space, so `SKILL` is parsed by matching the two
+trailing numbers and taking everything before them as the name --
+`\|SKILL\|First Aid 1 45\|` works.
+
+A range with no craftable recipe (open-world gathering, for instance) uses a
+`G` step with a `SKILL` tag and no `CRAFT`.
+
+**Profession guides in `Guides/Professions/` are generated** from
+`Tools/data/Professions_Reference.docx` by `Tools/convert_professions.py`.
+Editing them by hand will be overwritten. They are written in QuestShell+
+structured tables rather than this DSL -- see `Tools/QuestShellPlus.md` -- and
+the converter emits these tags through `QuestShellPlusParser.lua`.
+
 ## Coordinates
 
 Include coordinates in the note text using the format `(X, Y)` or `(X.X, Y.Y)`:
@@ -238,13 +265,25 @@ After creating the guide file, add it to the appropriate `Guides.xml`:
 
 When creating guides for Turtle WoW custom zones:
 
-1. **Turtle WoW Database**: https://database.turtle-wow.org/
-   - Search for quests, NPCs, items by zone
-   - Get quest IDs, coordinates, requirements
+> **Note on sources.** Turtle WoW itself is offline, and its database and wiki
+> may be stale or unreachable. The successor servers each reconstructed content
+> past roughly patch 1.17 independently, so **quest IDs and coordinates are not
+> guaranteed to match between them**. Prefer the database of the server you are
+> authoring for, and record which server you verified against.
+>
+> (Reachability of the two Turtle WoW links below could not be checked from the
+> environment these docs were updated in -- they are blocked there by an egress
+> proxy, which is not evidence either way.)
 
-2. **Turtle WoW Wiki**: https://turtle-wow.fandom.com/
+1. **Your server's own database** -- the authoritative source
+   - OctoWoW: https://octowow.st/db
+   - Capybara Paradise, RavenCraft: use each server's own database
+
+2. **Turtle WoW Database** (legacy): https://database.turtle-wow.org/
+   - Historical reference; verify anything taken from it
+
+3. **Turtle WoW Wiki** (legacy): https://turtle-wow.fandom.com/
    - Zone overviews and lore
-   - Custom content documentation
 
 3. **pfQuest-turtle Database**: `/Interface/AddOns/pfQuest-turtle/db/`
    - `quests-turtle.lua` - Quest data with prerequisites

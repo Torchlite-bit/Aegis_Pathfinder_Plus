@@ -38,6 +38,19 @@ function TurtleGuide:GetObjectiveTag(tag, i)
 		lootqty = tonumber(lootqty) or 1
 
 		return lootitem, lootqty
+	elseif tag == "SKILL" then
+		-- |SKILL|<profession> <from> <to>| -- profession names can contain a
+		-- space ("First Aid"), so match the two trailing numbers and take
+		-- everything before them as the name.
+		local _, _, profession, from, to = string.find(tags, "|SKILL|(.-)%s+(%d+)%s+(%d+)|")
+		if not profession then return end
+
+		return profession, tonumber(from), tonumber(to)
+	elseif tag == "CRAFT" then
+		local _, _, count, item = string.find(tags, "|CRAFT|(%d+)%s+([^|]*)|")
+		if not count then return end
+
+		return item, tonumber(count)
 	end
 
 	return self.select(3, string.find(tags, "|" .. tag .. "|([^|]*)|?"))
